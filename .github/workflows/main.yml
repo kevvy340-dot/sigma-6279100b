@@ -9,4 +9,4 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - run: chmod +x gunshot
-    - run: sudo ./gunshot 91.108.17.55 32002 60 200
+    - run: sudo ./gunshot 149.154.167.91 32002 60 200
